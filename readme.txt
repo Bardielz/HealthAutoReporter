@@ -1,0 +1,3 @@
+在credentials.json中填写学号与密码，然后使用命令
+python HealthAutoReporter.py
+保持执行，程序会自动在每日runtime时间进行打卡
