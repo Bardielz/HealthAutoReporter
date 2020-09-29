@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import schedule
+import numpy as np
 import requests
 import json
 import time
@@ -66,9 +66,15 @@ def autoreport(cred: JSONobj) -> json:
 		'Connection': 'keep-alive',
 		'Referer': URL_REPORT_CHECK,
 		}
-	healthstatus_yesterday_status = get_data(cred)
-	reportstatus = session.post(URL_REPORT_SAVE, headers=headers, data=healthstatus_yesterday_status)
-	return reportstatus.json()
+	reportstatus = []
+	for i in range(len(cred.allcomponet)):
+
+		t = np.random.randint(1,10)
+		time.sleep(t*60)
+
+		healthstatus_yesterday_status = get_data(cred.allcomponet[i])
+		reportstatus.append(session.post(URL_REPORT_SAVE, headers=headers, data=healthstatus_yesterday_status).json())
+	return reportstatus
 
 
 def job():
@@ -78,21 +84,25 @@ def job():
 	#print("credentials done")
 	reportstatus = autoreport(credentials) # 自动填报
 	#print("reportstatus done")
-	if '今天已经填报了' in reportstatus['m']: # 返回填报状态
-		print('已经填过了哦')
-	elif '操作成功' in reportstatus['m']:
-		print('今日填报成功')
-	else :
-		print("Warning!!!!打卡未成功！！！请手动打开！！！")
+	for i in range(len(credentials.allcomponet)):
+		print("ID:",credentials.allcomponet[i].username)
+		if '今天已经填报了' in reportstatus[i]['m']: # 返回填报状态
+			print('已经填过了哦')
+		elif '操作成功' in reportstatus[i]['m']:
+			print('今日填报成功')
+		else :
+			print("Warning!!!!打卡未成功！！！请手动打开！！！")
 
 if __name__ == '__main__':
 
-	#job()
+	job()
+	timeset = "08:12"
 
-	runtime ="07:41"
-	schedule.every().day.at(runtime).do(job)
 	while True:
-		schedule.run_pending()
-		time.sleep(9)
+		if time.strftime("%H:%M", time.localtime()) == timeset:
+			job()
+
+		time.sleep(40)
+
 
 
